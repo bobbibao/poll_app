@@ -1,0 +1,68 @@
+{% extends 'home/base.html' %}
+{% block title %}
+  View Vote
+{% endblock title %}  
+
+{% block content %}
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<div class="content "><main>
+    <div class="border-left">
+  <h5 class="text-dark font-weight-bold">{{poll.text}}?</h5>
+  <div id="pie-chart"></div>
+	
+    </div>
+    {% if request.user == poll.owner %}
+    <a class="btn btn-primary mt-3" href="{% url 'back' poll.id %}" role="button">Poll back</a>
+{% endif %}
+<a class="btn btn-primary mt-3" href="{% url 'view' %}" role="button">Back To Polls</a>
+</main></div>
+<!-- partial -->
+  <script>
+    google.load("visualization", "1", {packages:["corechart"]});
+google.setOnLoadCallback(drawCharts);
+function drawCharts() {
+
+  // BEGIN PIE CHART
+  
+  // pie chart data
+  var pieData = google.visualization.arrayToDataTable([
+    ['options', 'vote'],
+    {% for choice in poll.choice_set.all %}
+    ['{{ choice.choice_text }}', {{ choice.get_vote_count }}],
+    {% endfor %}
+  ]);
+  // pie chart options
+  var pieOptions = {
+    backgroundColor: 'transparent',
+    pieHole: 0.4,
+    colors: [ "cornflowerblue", 
+              "olivedrab", 
+              "orange", 
+              "tomato", 
+              "crimson", 
+              "purple", 
+              "turquoise", 
+              "forestgreen", 
+              "navy", 
+              "gray"],
+    pieSliceText: 'value',
+    tooltip: {
+      text: 'percentage'
+    },
+    fontName: 'Open Sans',
+    chartArea: {
+      width: '100%',
+      height: '100%'
+    },
+    legend: {
+      textStyle: {
+        fontSize: 13
+      }
+    }
+  };
+  // draw pie chart
+  var pieChart = new google.visualization.PieChart(document.getElementById('pie-chart'));
+  pieChart.draw(pieData, pieOptions);
+}
+  </script>
+{% endblock %}

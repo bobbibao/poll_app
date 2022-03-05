@@ -1,0 +1,135 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="content">
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <!-- Profile widget -->
+            <div class="bg-white shadow rounded overflow-hidden">
+                <div class="px-4 pt-0 pb-4 cover">
+                    <div class="media align-items-end profile-head">
+                        <div class="profile mr-3"><img src="{{user.profile_pic.url}}" alt="..." width="130" class="rounded mb-2 img-thumbnail"><a href="#" class="btn btn-outline-dark btn-sm btn-block">Edit profile</a></div>
+                        <div class="media-body mb-5 text-white">
+                            <h4 class="mt-0 mb-0 text-dark">{{user.first_name}}</h4>
+                            <p class="small mb-4"> <i class="fas fa-map-marker-alt mr-2"></i></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-light p-4 d-flex justify-content-end text-center">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item">
+                            <h5 class="font-weight-bold mb-0 d-block">.</h5><small class="text-muted"> <i class="fas fa-image mr-1"></i>Photos</small>
+                        </li>
+                        <li class="list-inline-item">
+                            <h5 class="font-weight-bold mb-0 d-block">.</h5><small class="text-muted"> <i class="fas fa-user mr-1"></i>Followers</small>
+                        </li>
+                        <li class="list-inline-item">
+                            <h5 class="font-weight-bold mb-0 d-block">.</h5><small class="text-muted"> <i class="fas fa-user mr-1"></i>Following</small>
+                        </li>
+                    </ul>
+                </div>
+                
+        <div class="col-md-8 offset-sm-2 ">
+            {% for poll in polls %}
+            {% if request.user != poll.owner %}
+            <h1 class="text-center mt-3 mb-3 text-primary">Welcome to polls List!</h1>
+            {% endif %}
+            {% endfor %}
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            
+            
+            <a class="btn btn-{% if 'name' in request.GET %}warning{% else %}primary{% endif %} mb-3" href="?name=True"
+                role="button"><i class="fas fa-sort-alpha-down"></i>
+                Name</a>
+            <a class="btn btn-{% if 'date' in request.GET %}warning{% else %}primary{% endif %} mb-3" href="?date=True"
+                role="button"><i class="far fa-clock"></i> Date</a>
+            <a class="btn btn-{% if 'vote' in request.GET %}warning{% else %}primary{% endif %} mb-3" href="?vote=True"
+                role="button"><i class="fas fa-poll"></i> Vote</a>
+            
+            <a class="btn btn-primary mb-3" onclick="copyText()" role="button" ><i class="fas fa-poll">Copy link</i> </a>
+            <script>
+                function copyText() {
+        
+                    /* Copy text into clipboard */
+                    navigator.clipboard.writeText
+                        ("http://127.0.0.1:8000/{{user.username}}/");
+                }
+            </script>    
+            <a class="btn btn-primary mb-3 float-right" href="{% url 'poll' %}" role="button">Add <i class="fas fa-plus"></i></a>
+           
+            <form class="form-inline">
+                <div class="form-group mr-sm-2 mb-2">
+                    <input type="search" class="form-control" name="search" placeholder="Search" value={{ search_term }}>
+                </div>
+                <button type="submit" class="btn btn-primary mb-2"><i class="fas fa-search"></i></button>
+            </form>
+
+
+            <ul class="list-group">
+                {% for poll in polls %}
+                <li class="list-group-item"><a href="{% url 'detail' poll.id %}">{{ poll.text|truncatewords:5 }}
+                        {% if not poll.active%}
+                        <i class="fas fa-check-circle ml-2"></i>
+                        {% endif %}
+                    </a>
+                    {% if request.user == poll.owner %}
+                    {% if poll.active %}
+                    <a href="{% url 'end' poll.id %}" data-toggle="tooltip" data-placement="top" title="End Poll"
+                        onclick="return confirm('Are you sure ?')"><i class="fas fa-step-forward float-right btn btn-danger btn-sm"></i></a>
+                    {% endif %}
+                    <a href="{% url 'edit' poll.id %}" class="mr-3" data-toggle="tooltip" data-placement="top"
+                        title="Edit Poll"><i class="fas fa-pencil-alt float-right btn btn-primary btn-sm mr-1"></i></a>
+                    {% endif %}
+                </li>
+
+                {% endfor %}
+            </ul>
+            <nav class="mt-3">
+                <ul class="pagination">
+                    {% for i in pag %}
+                    {% if i == polls.number %}
+                    <li class="page-item active"><a class="page-link" href="">{{ i }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{i}}&{{ params }}">{{ i }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+            <nav class="mt-3">
+                <ul class="pagination">
+                    {% if polls.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page=1&{{ params }}">First</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ polls.previous_page_number }}&{{ params }}">Previous</a></li>
+                    {% endif %}
+
+                    {% if polls.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ polls.next_page_number }}&{{ params }}">Next</a></li>
+                    <li class="page-item"><a class="page-link" href="?page={{ polls.paginator.num_pages }}&{{ params }}">Last</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>  
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+    
+
+</div>
+
+{% endblock content %}

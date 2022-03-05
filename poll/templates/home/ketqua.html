@@ -1,0 +1,113 @@
+{% extends "home/base.html" %}
+
+{% block title %}Results{% endblock %}
+
+{% block content %}
+    <div class="content">
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <main style="width: 600px;">
+
+    <h5>Daily Page Hits</h5>
+    <div id="bar-chart"></div>
+    
+        {% if poll.active %}
+        {{poll.text}}
+        {% endif %}
+    </main>
+    <!-- partial -->
+    <script type="text/javascript">
+
+        google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawCharts);
+    function drawCharts() {
+    
+    // BEGIN BAR CHART
+    /*
+    // create zero data so the bars will 'grow'
+    var barZeroData = google.visualization.arrayToDataTable([
+        ['Day', 'Page Views', 'Unique Views'],
+        ['Sun',  0,      0],
+        ['Mon',  0,      0],
+        ['Tue',  0,      0],
+        ['Wed',  0,      0],
+        ['Thu',  0,      0],
+        ['Fri',  0,      0],
+        ['Sat',  0,      0]
+    ]);
+        */
+    // actual bar chart data
+    var barData = google.visualization.arrayToDataTable([
+        [ {% for choice in poll.choice_set.all %}
+        {{ choice.choice_text }}
+        {% endfor %}
+        ],
+        ['{{poll.text}}'
+        {% for choice in poll.choice_set.all %} 
+        , {{ choice.get_vote_count }}
+        {% endfor %}
+        ],
+        
+
+        
+        /*['{{poll_1.question}}',  {{poll_1.option_one_count}},      {{poll_1.option_two_count}},{{poll_1.option_three_count}}],
+        ['{{poll_2.question}}',  {{poll_2.option_one_count}},      {{poll_2.option_two_count}}, {{poll_2.option_three_count}}],
+        ['{{poll_3.question}}',  {{poll_3.option_one_count}},      {{poll_3.option_two_count}}, {{poll_3.option_three_count}}],*/
+    ]);
+    
+    /*['Day', '{{poll_1.option_one}}', '{{poll_1.option_two}}', '{{poll_1.option_three}}'],
+        ['{{poll_1.question}}',  {{poll_1.option_one_count}},      {{poll_1.option_two_cout}}, {{poll_1.option_three_count}}],
+        ['{{poll_2.question}}',  {{poll_2.option_one_count}},      {{poll_2.option_two_cout}}, {{poll_2.option_three_count}}],
+        ['{{poll_3.question}}',  {{poll_3.option_one_count}},      {{poll_3.option_two_cout}}, {{poll_3.option_three_count}}],
+    ]);*/
+    // set bar chart options
+    var barOptions = {
+        focusTarget: 'category',
+        backgroundColor: 'transparent',
+        colors: ['cornflowerblue', 'tomato'],
+        fontName: 'Open Sans',
+        chartArea: {
+        left: 50,
+        top: 10,
+        width: '100%',
+        height: '70%'
+        },
+        bar: {
+        groupWidth: '80%'
+        },
+        hAxis: {
+        textStyle: {
+            fontSize: 11
+        }
+        },
+        vAxis: {
+        minValue: 0,
+        maxValue: {{poll.get_vote_count}},
+        baselineColor: '#DDD',
+        gridlines: {
+            color: '#DDD',
+            count: 4
+        },
+        textStyle: {
+            fontSize: 11
+        }
+        },
+        legend: {
+        position: 'bottom',
+        textStyle: {
+            fontSize: 12
+        }
+        },
+        animation: {
+        duration: 1200,
+        easing: 'out',
+                startup: true
+        }
+    };
+    // draw bar chart twice so it animates
+    var barChart = new google.visualization.ColumnChart(document.getElementById('bar-chart'));
+    //barChart.draw(barZeroData, barOptions);
+    barChart.draw(barData, barOptions);
+    }
+    </script>
+    </div>
+{% endblock content %}
